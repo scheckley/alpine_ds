@@ -6,7 +6,6 @@ This is a 'work in progress' small Docker container built with Alpine linux cont
 * Pandas
 * Matplotlib
 * Seaborn
-* Altair
 * scikit-learn 
 * lightgbm 
 * xgboost 
