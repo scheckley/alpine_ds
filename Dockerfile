@@ -8,6 +8,7 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     bash \
     git \
     curl \
+    wget \
     ca-certificates \
     bzip2 \
     unzip \
@@ -18,6 +19,8 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     libxrender \
     tini@testing \
     libssl1.1 \
+    vim \
+    zsh \
     && curl "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" -o /etc/apk/keys/sgerrand.rsa.pub \
     && curl -L "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.29-r0/glibc-2.29-r0.apk" -o glibc.apk \
     && apk add glibc.apk \
@@ -41,6 +44,8 @@ RUN wget --quiet https://github.com/krallin/tini/releases/download/v0.10.0/tini 
     mv tini /usr/local/bin/tini && \
     chmod +x /usr/local/bin/tini
 
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+
 # Configure environment
 ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH
@@ -50,6 +55,8 @@ ENV NB_UID 1000
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
+# terminal colors with xterm
+  ENV TERM xterm
 
 # Configure Miniconda
 ENV MINICONDA_VER 4.6.14
@@ -84,12 +91,14 @@ USER root
 RUN conda update -n base -c defaults conda
 
 # install data science packages
-RUN conda install -c conda-forge pandas matplotlib seaborn altair vega_datasets scikit-learn 
+RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras matplotlib seaborn altair vega_datasets statsmodels tqdm
 
 # Configure container startup as root
 WORKDIR /home/$NB_USER/work
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD [ "/bin/bash" ]
+#CMD [ "/bin/bash" ]
+# start zsh
+CMD [ "zsh" ]
 
 # Switch back to stephen to avoid accidental container runs as root
 USER stephen
