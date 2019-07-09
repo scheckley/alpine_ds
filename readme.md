@@ -10,6 +10,7 @@ This is a 'work in progress' small Docker container built with Alpine linux cont
 * lightgbm 
 * xgboost 
 * keras
+* PyMC3
 
 ### Unix tools
 * oh-my-zsh
