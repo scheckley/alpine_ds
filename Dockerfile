@@ -15,8 +15,6 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     sudo \
     libstdc++ \
     glib \
-    libxext \
-    libxrender \
     tini@testing \
     libssl1.1 \
     vim \
@@ -39,6 +37,10 @@ RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
     && rm -rf /var/cache/apk/*
 
 RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+
+RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+
+COPY .vimrc /root/.vimrc
 
 # Configure environment
 ENV CONDA_DIR /opt/conda
