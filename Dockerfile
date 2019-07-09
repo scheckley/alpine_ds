@@ -36,13 +36,6 @@ RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
     && apk add --no-cache --virtual build-dependencies $PACKAGES \
     && rm -rf /var/cache/apk/*
 
-RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
-
-RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-
-COPY .vimrc /root/.vimrc
-COPY .zshrc /root/.zshrc
-
 # Configure environment
 ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH
@@ -67,6 +60,13 @@ RUN adduser -s /bin/bash -u $NB_UID -D $NB_USER && \
     chown stephen /opt/conda
 
 USER stephen
+
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+
+RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+
+COPY .vimrc /home/stephen/.vimrc
+COPY .zshrc /home/stephen/.zshrc
 
 # Setup stephen home directory
 RUN mkdir /home/$NB_USER/work && \
