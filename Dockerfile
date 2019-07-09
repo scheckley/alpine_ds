@@ -41,6 +41,7 @@ RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -
 RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 
 COPY .vimrc /root/.vimrc
+COPY .zshrc /root/.vimrc
 
 # Configure environment
 ENV CONDA_DIR /opt/conda
