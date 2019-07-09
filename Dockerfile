@@ -46,7 +46,7 @@ ENV LC_ALL en_GB.UTF-8
 ENV LANG en_GB.UTF-8
 ENV LANGUAGE en_GB.UTF-8
 # terminal colors with xterm
-  ENV TERM xterm
+ENV TERM xterm
 
 # Configure Miniconda
 ENV MINICONDA_VER 4.6.14
@@ -93,9 +93,10 @@ RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras matp
 # Configure container startup as root
 WORKDIR /home/$NB_USER/work
 ENTRYPOINT ["/sbin/tini", "--"]
-#CMD [ "/bin/bash" ]
-# start zsh
-CMD [ "zsh" ]
 
 # Switch back to stephen to avoid accidental container runs as root
 USER stephen
+
+#CMD [ "/bin/bash" ]
+# start zsh
+CMD [ "zsh" ]
