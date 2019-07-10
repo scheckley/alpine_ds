@@ -1,5 +1,5 @@
-# Path to your oh-my-zsh installation.
-export ZSH="/root/.oh-my-zsh"
+# Path to oh-my-zsh installation.
+export ZSH="/home/stephen/.oh-my-zsh"
 export TERM="xterm-256color"
 
 source $ZSH/oh-my-zsh.sh

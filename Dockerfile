@@ -27,6 +27,9 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     && /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc/usr/lib \
     && rm -rf glibc*apk /var/cache/apk/*
 
+#pull down oh-my-zsh
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+
 RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
     && apk add --virtual build-runtime \
     build-base python-dev openblas-dev freetype-dev pkgconfig gfortran \
@@ -61,8 +64,7 @@ RUN adduser -s /bin/bash -u $NB_UID -D $NB_USER && \
 
 USER stephen
 
-RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
-
+# pull down vundle vim plugin system
 RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 
 COPY .vimrc /home/stephen/.vimrc
