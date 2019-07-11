@@ -28,20 +28,15 @@ set ruler
 " Always show statusline
 set laststatus=2
 
-" Palenight
 set termguicolors
 set t_Co=termguicolors
 set background=dark
-colorscheme palenight
 
 let g:lightline = {}
 let g:lightline.colorscheme = 'palenight'
 
-set t_Co=termguicolors
-
 syntax on
 
-set guifont=FiraCode-Medium:h12
 "highlight Comment cterm=italic
 highlight Comment gui=italic
 

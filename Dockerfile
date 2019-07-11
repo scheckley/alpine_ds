@@ -27,9 +27,6 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     && /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc/usr/lib \
     && rm -rf glibc*apk /var/cache/apk/*
 
-#pull down oh-my-zsh
-RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
-
 RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
     && apk add --virtual build-runtime \
     build-base python-dev openblas-dev freetype-dev pkgconfig gfortran \
@@ -64,15 +61,22 @@ RUN adduser -s /bin/bash -u $NB_UID -D $NB_USER && \
 
 USER stephen
 
+#pull down oh-my-zsh
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+
 # pull down vundle vim plugin system
 RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 
+# setup Vim
 COPY .vimrc /home/stephen/.vimrc
+# Install vim plugins
+RUN [ "/bin/bash", "-c", "vim -T dumb -n -i NONE -es -S <(echo -e 'silent! PluginInstall')" ]
+
+# set up zsh
 COPY .zshrc /home/stephen/.zshrc
 
 # Setup stephen home directory
-RUN mkdir /home/$NB_USER/work && \
-    mkdir /home/$NB_USER/.jupyter && \
+RUN mkdir /home/$NB_USER/.jupyter && \
     mkdir /home/$NB_USER/.local
 
 # Install conda as stephen
@@ -93,7 +97,7 @@ RUN conda update -n base -c defaults conda
 RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras matplotlib seaborn statsmodels tqdm pymc3
 
 # Configure container startup as root
-WORKDIR /home/$NB_USER/work
+WORKDIR /home/$NB_USER/
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Switch back to stephen to avoid accidental container runs as root

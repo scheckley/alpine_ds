@@ -2,6 +2,8 @@
 export ZSH="/home/stephen/.oh-my-zsh"
 export TERM="xterm-256color"
 
+ZSH_THEME="robbyrussell"
+
 source $ZSH/oh-my-zsh.sh
 
 alias untar='tar -xvf'
