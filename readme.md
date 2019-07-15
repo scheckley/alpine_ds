@@ -11,6 +11,8 @@ This is a 'work in progress' small Docker container built with Alpine linux cont
 * xgboost 
 * keras
 * PyMC3
+* Numba
+* Networkx
 
 ### Unix tools
 * oh-my-zsh
