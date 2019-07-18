@@ -94,7 +94,8 @@ USER root
 RUN conda update -n base -c defaults conda
 
 # install data science packages
-RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras matplotlib seaborn statsmodels tqdm pymc3 numba networkx
+RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras matplotlib seaborn
+statsmodels tqdm pymc3 numba networkx hyperopt
 
 # Configure container startup as root
 WORKDIR /home/$NB_USER/
