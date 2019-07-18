@@ -23,18 +23,17 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     && apk add glibc.apk \
     && curl -L "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-bin-2.23-r3.apk" -o glibc-bin.apk \
     && apk add glibc-bin.apk \
-    && apk cache clean \
     && /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc/usr/lib \
     && rm -rf glibc*apk /var/cache/apk/*
 
-RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
-    && apk add --virtual build-runtime \
-    build-base python-dev openblas-dev freetype-dev pkgconfig gfortran \
-    && ln -s /usr/include/locale.h /usr/include/xlocale.h \
-    && pip install --upgrade pip \
-    && apk del build-runtime \
-    && apk add --no-cache --virtual build-dependencies $PACKAGES \
-    && rm -rf /var/cache/apk/*
+#RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
+#    && apk add --virtual build-runtime \
+#    build-base python-dev openblas-dev freetype-dev pkgconfig gfortran \
+#    && ln -s /usr/include/locale.h /usr/include/xlocale.h \
+#    && pip install --upgrade pip \
+#    && apk del build-runtime \
+#    && apk add --no-cache --virtual build-dependencies $PACKAGES \
+#    && rm -rf /var/cache/apk/*
 
 # Configure environment
 ENV CONDA_DIR /opt/conda
@@ -94,7 +93,9 @@ USER root
 RUN conda update -n base -c defaults conda
 
 # install data science packages
-RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras matplotlib seaborn statsmodels tqdm pymc3 numba networkx hyperopt
+RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras statsmodels tqdm pymc3 numba networkx hyperopt
+
+RUN pip install halo
 
 # Configure container startup as root
 WORKDIR /home/$NB_USER/
