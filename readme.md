@@ -4,8 +4,6 @@ This is a 'work in progress' Docker container built with Alpine linux containing
 
 ### Miniconda Python
 * Pandas
-* Matplotlib
-* Seaborn
 * scikit-learn 
 * lightgbm 
 * xgboost 
