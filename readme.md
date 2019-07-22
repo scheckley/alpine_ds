@@ -12,6 +12,7 @@ This is a 'work in progress' Docker container built with Alpine linux containing
 * Numba
 * Networkx
 * hyperopt
+* pyarrow
 
 ### Unix tools
 * oh-my-zsh
