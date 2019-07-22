@@ -93,7 +93,8 @@ USER root
 RUN conda update -n base -c defaults conda
 
 # install data science packages
-RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras statsmodels tqdm pymc3 numba networkx hyperopt
+RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras statsmodels tqdm pymc3
+numba networkx hyperopt pyarrow
 
 RUN pip install halo
 
