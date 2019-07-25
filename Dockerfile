@@ -1,4 +1,4 @@
-From alpine:latest
+FROM alpine:3.9
 
 LABEL MAINTAINER="Stephen Checkley <scheckley@gmail.com>"
 
@@ -17,11 +17,10 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     tini@testing \
     libssl1.1 \
     vim \
-    redis \
     zsh \
-    gcc \
-    libc-dev \
-    linux-headers \
+    build-base \
+    procps \
+    libstdc++ \
     neofetch \
     && curl "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" -o /etc/apk/keys/sgerrand.rsa.pub \
     && curl -L "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.29-r0/glibc-2.29-r0.apk" -o glibc.apk \
@@ -30,6 +29,7 @@ RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/re
     && apk add glibc-bin.apk \
     && /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc/usr/lib \
     && rm -rf glibc*apk
+
 #RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
 #    && apk add --virtual build-runtime \
 #    build-base python-dev openblas-dev freetype-dev pkgconfig gfortran \
@@ -99,11 +99,9 @@ USER root
 RUN conda update -n base -c defaults conda
 
 # install data science packages
-RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras statsmodels tqdm pymc3 numba networkx hyperopt pyarrow psutil
+RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras statsmodels tqdm pymc3 numba networkx hyperopt pyarrow psutil flatbuffers setproctitle
 
-RUN pip install halo ray
-
-
+RUN pip install ray
 
 # Configure container startup as root
 WORKDIR /home/$NB_USER/
@@ -114,4 +112,5 @@ USER stephen
 
 #CMD [ "/bin/bash" ]
 # start zsh
+EXPOSE 6379
 CMD [ "zsh" ]
