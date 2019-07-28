@@ -1,45 +1,53 @@
-FROM alpine:3.9
+FROM ubuntu:bionic
 
 LABEL MAINTAINER="Stephen Checkley <scheckley@gmail.com>"
 
-# Install glibc and useful packages
-RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-    && apk --update add \
-    bash \
-    git \
-    curl \
-    wget \
-    ca-certificates \
-    bzip2 \
-    unzip \
-    sudo \
-    glib \
-    tini@testing \
-    libssl1.1 \
-    vim \
+# Do the root stuff.
+USER root
+
+# Update ubuntu and install some common tools.
+RUN apt-get update && apt-get -yq dist-upgrade \
+ && apt-get install -yq --no-install-recommends \
     zsh \
-    build-base \
-    procps \
-    libstdc++ \
+    bc \
+    bzip2 \
+    ca-certificates \
+    cmake \
+    gcc \
+    git \
+    gfortran \
+    g++ \
+    less \
+    fonts-liberation \
+    libgfortran3 \
+    locales \
+    make \
+    nano \
+    openssh-client \
+    python3 \
+    python3-pip \
+    python3-setuptools \
+    rsync \
+    sudo \
+    wget \
+    curl \
+    vim \
+    zlib1g-dev \
     neofetch \
-    && curl "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" -o /etc/apk/keys/sgerrand.rsa.pub \
-    && curl -L "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.29-r0/glibc-2.29-r0.apk" -o glibc.apk \
-    && apk add glibc.apk \
-    && curl -L "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-bin-2.23-r3.apk" -o glibc-bin.apk \
-    && apk add glibc-bin.apk \
-    && /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc/usr/lib \
-    && rm -rf glibc*apk
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-#RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
-#    && apk add --virtual build-runtime \
-#    build-base python-dev openblas-dev freetype-dev pkgconfig gfortran \
-#    && ln -s /usr/include/locale.h /usr/include/xlocale.h \
-#    && pip install --upgrade pip \
-#    && apk del build-runtime \
-#    && apk add --no-cache --virtual build-dependencies $PACKAGES \
-#    && rm -rf /var/cache/apk/*
+ # Update pip to the latest version.
+RUN python3 -m pip install --upgrade pip
 
-RUN rm -rf /var/cache/apk/*
+RUN echo "en_GB.UTF-8 UTF-8" > /etc/locale.gen && \
+    locale-gen
+
+# Install Tini - A tiny but valid init for containers https://github.com/krallin/tini.
+RUN wget --quiet https://github.com/krallin/tini/releases/download/v0.10.0/tini && \
+    echo "1361527f39190a7338a0b434bd8c88ff7233ce7b9a4876f3315c22fce7eca1b0 *tini" | sha256sum -c - && \
+    mv tini /usr/local/bin/tini && \
+    chmod +x /usr/local/bin/tini
 
 # Configure environment
 ENV CONDA_DIR /opt/conda
@@ -59,12 +67,16 @@ ENV MINICONDA Miniconda3-$MINICONDA_VER-Linux-x86_64.sh
 ENV MINICONDA_URL https://repo.continuum.io/miniconda/$MINICONDA
 ENV MINICONDA_MD5_SUM 718259965f234088d785cad1fbd7de03
 
-# Create non-root user with UID=1000 and in the 'users' group
-RUN adduser -s /bin/bash -u $NB_UID -D $NB_USER && \
-    mkdir -p /opt/conda && \
-    chown stephen /opt/conda
+# Set up user environment variables.
+ENV NB_USER=stephen \
+    NB_UID=1000 \
+    NB_GID=100 \
+    LC_ALL=en_GB.UTF-8 \
+    LANG=en_GB.UTF-8 \
+    LANGUAGE=en_GB.UTF-8
 
-USER stephen
+# Create non-root user.
+RUN useradd -m -s $SHELL -N -u $NB_UID $NB_USER
 
 #pull down oh-my-zsh
 RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
@@ -72,6 +84,7 @@ RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -
 # pull down vundle vim plugin system
 RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 
+USER $NB_USER
 # setup Vim
 COPY .vimrc /home/stephen/.vimrc
 # Install vim plugins
@@ -80,10 +93,7 @@ RUN [ "/bin/bash", "-c", "vim -T dumb -n -i NONE -es -S <(echo -e 'silent! Plugi
 # set up zsh
 COPY .zshrc /home/stephen/.zshrc
 
-# Setup stephen home directory
-RUN mkdir /home/$NB_USER/.jupyter && \
-    mkdir /home/$NB_USER/.local
-
+USER root
 # Install conda as stephen
 RUN cd /tmp && \
     mkdir -p $CONDA_DIR && \
@@ -93,8 +103,6 @@ RUN cd /tmp && \
     rm miniconda.sh && \
     $CONDA_DIR/bin/conda install --yes conda==$MINICONDA_VER
 
-USER root
-
 # pull down latest conda version
 RUN conda update -n base -c defaults conda
 
@@ -103,14 +111,7 @@ RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras stat
 
 RUN pip install ray
 
-# Configure container startup as root
-WORKDIR /home/$NB_USER/
-ENTRYPOINT ["/sbin/tini", "--"]
+# Configure container startup as user
+USER $NB_USER
 
-# Switch back to stephen to avoid accidental container runs as root
-USER stephen
-
-#CMD [ "/bin/bash" ]
-# start zsh
-EXPOSE 6379
 CMD [ "zsh" ]
