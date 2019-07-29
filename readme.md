@@ -13,6 +13,7 @@ This is a 'work in progress' Docker container built with Ubuntu linux containing
 * Networkx
 * hyperopt
 * pyarrow
+* Ray
 
 ### Unix tools
 * oh-my-zsh
