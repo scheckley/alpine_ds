@@ -78,13 +78,13 @@ ENV NB_USER=stephen \
 # Create non-root user.
 RUN useradd -m -s $SHELL -N -u $NB_UID $NB_USER
 
+USER $NB_USER
 #pull down oh-my-zsh
 RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
 
 # pull down vundle vim plugin system
 RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 
-USER $NB_USER
 # setup Vim
 COPY .vimrc /home/stephen/.vimrc
 # Install vim plugins
@@ -113,5 +113,6 @@ RUN pip install ray
 
 # Configure container startup as user
 USER $NB_USER
+WORKDIR /home/$NB_USER/
 
 CMD [ "zsh" ]
