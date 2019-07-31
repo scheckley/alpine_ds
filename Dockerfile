@@ -107,7 +107,7 @@ RUN cd /tmp && \
 RUN conda update -n base -c defaults conda
 
 # install data science packages
-RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras statsmodels tqdm pymc3 numba networkx hyperopt pyarrow psutil flatbuffers setproctitle
+RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras statsmodels tqdm pymc3 numba networkx hyperopt pyarrow psutil flatbuffers setproctitle pyemd
 
 RUN pip install ray
 
