@@ -22,7 +22,6 @@ RUN apt-get update && apt-get -yq dist-upgrade \
     libgfortran3 \
     locales \
     make \
-    nano \
     openssh-client \
     python3 \
     python3-pip \
