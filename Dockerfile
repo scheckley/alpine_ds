@@ -42,6 +42,7 @@ ENV PACKAGES="\
     tk \
     vim \
     R \
+    R-dev \
 "
 
 RUN apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
