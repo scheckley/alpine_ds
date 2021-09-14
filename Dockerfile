@@ -63,12 +63,11 @@ ENV PYTHON_PACKAGES="\
 RUN alias pip=pip3 \ 
     && apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
     && apk add --virtual build-runtime \
-    build-base python3-dev openblas-dev freetype-dev pkgconfig gfortran \
+    build-base python3-dev openblas-dev freetype-dev pkgconfig gfortran jpeg-dev zlib-dev \
+    && apk add --update --no-cache py3-numpy py3-pandas py3-scipy py3-scikit-learn py3-matplotlib \
     && ln -s /usr/include/locale.h /usr/include/xlocale.h \
-    && pip install --upgrade pip \
-    && pip install --no-cache-dir $PYTHON_PACKAGES \
     && apk del build-runtime \
     && apk add --no-cache --virtual build-dependencies $PACKAGES \
     && rm -rf /var/cache/apk/*
 
-CMD ["python"]
+CMD ["python3"]
