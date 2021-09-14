@@ -49,7 +49,8 @@ RUN apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
     && apk add --virtual build-runtime \
     build-base python3-dev openblas-dev freetype-dev pkgconfig gfortran jpeg-dev zlib-dev \
     && pip3 install numpy \
-    && apk add --update --no-cache --virtual py3-pip py3-pandas py3-scipy py3-scikit-learn py3-cx_freeze py3-matplotlib \
+    && apk add --update --no-cache --virtual py3-pandas py3-scipy py3-scikit-learn py3-cx_freeze py3-matplotlib \
+    && apk add py3-pip \
     && apk add cmd:pip3 \
     && ln -s /usr/include/locale.h /usr/include/xlocale.h \
     && apk del build-runtime \
