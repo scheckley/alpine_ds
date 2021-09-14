@@ -40,31 +40,15 @@ ENV PACKAGES="\
     openblas \
     tcl \
     tk \
-    libssl1.0 \
     vim \
     R \
 "
 
-# PYTHON DATA SCIENCE PACKAGES
-#   * numpy: support for large, multi-dimensional arrays and matrices
-#   * matplotlib: plotting library for Python and its numerical mathematics extension NumPy.
-#   * scipy: library used for scientific computing and technical computing
-#   * scikit-learn: machine learning library integrates with NumPy and SciPy
-#   * pandas: library providing high-performance, easy-to-use data structures and data analysis tools
-#   * nltk: suite of libraries and programs for symbolic and statistical natural language processing for English
-ENV PYTHON_PACKAGES="\
-    numpy \
-    matplotlib \
-    scipy \
-    scikit-learn \
-    pandas \
-" 
-
-RUN alias pip=pip3 \ 
-    && apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
+RUN apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
     && apk add --virtual build-runtime \
     build-base python3-dev openblas-dev freetype-dev pkgconfig gfortran jpeg-dev zlib-dev \
-    && apk add --update --no-cache py3-numpy py3-pandas py3-scipy py3-scikit-learn py3-matplotlib \
+    && pip3 install numpy \
+    && apk add --update --no-cache --virtual py3-pandas py3-scipy py3-scikit-learn py3-matplotlib \
     && ln -s /usr/include/locale.h /usr/include/xlocale.h \
     && apk del build-runtime \
     && apk add --no-cache --virtual build-dependencies $PACKAGES \
