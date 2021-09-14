@@ -8,7 +8,11 @@ This is a 'work in progress' Docker container built with Alpine linux containing
 * scikit-learn
 * scipy
 * numpy
-* R
+* cx_freeze
+
+### R
+* Base R
 
 ### Unix tools
+* bash
 * vim
