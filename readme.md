@@ -9,6 +9,7 @@ This is a 'work in progress' Docker container built with Alpine linux containing
 * scipy
 * numpy
 * cx_freeze
+* virtualenv
 
 ### R
 * Base R
