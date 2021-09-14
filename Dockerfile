@@ -54,4 +54,4 @@ RUN apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
     && apk add --no-cache --virtual build-dependencies $PACKAGES \
     && rm -rf /var/cache/apk/*
 
-CMD ["python3"]
+CMD ["bash"]
