@@ -58,7 +58,6 @@ ENV PYTHON_PACKAGES="\
     scipy \
     scikit-learn \
     pandas \
-    nltk \
 " 
 
 RUN apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
