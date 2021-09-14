@@ -60,7 +60,8 @@ ENV PYTHON_PACKAGES="\
     pandas \
 " 
 
-RUN apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
+RUN alias pip=pip3 \ 
+    && apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
     && apk add --virtual build-runtime \
     build-base python3-dev openblas-dev freetype-dev pkgconfig gfortran \
     && ln -s /usr/include/locale.h /usr/include/xlocale.h \
