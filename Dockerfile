@@ -1,117 +1,72 @@
-FROM ubuntu:bionic
+FROM alpine:latest
 
 LABEL MAINTAINER="Stephen Checkley <scheckley@gmail.com>"
 
-# Do the root stuff.
-USER root
+# Linking of locale.h as xlocale.h
+# This is done to ensure successfull install of python numpy package
+# see https://forum.alpinelinux.org/comment/690#comment-690 for more information.
 
-# Update ubuntu and install some common tools.
-RUN apt-get update && apt-get -yq dist-upgrade \
- && apt-get install -yq --no-install-recommends \
-    zsh \
-    bc \
-    bzip2 \
-    ca-certificates \
-    cmake \
-    gcc \
+WORKDIR /var/www/
+
+# SOFTWARE PACKAGES
+#   * musl: standard C library
+#   * lib6-compat: compatibility libraries for glibc
+#   * linux-headers: commonly needed, and an unusual package name from Alpine.
+#   * build-base: used so we include the basic development packages (gcc)
+#   * bash: so we can access /bin/bash
+#   * git: to ease up clones of repos
+#   * ca-certificates: for SSL verification during Pip and easy_install
+#   * freetype: library used to render text onto bitmaps, and provides support font-related operations
+#   * libgfortran: contains a Fortran shared library, needed to run Fortran
+#   * libgcc: contains shared code that would be inefficient to duplicate every time as well as auxiliary helper routines and runtime support
+#   * libstdc++: The GNU Standard C++ Library. This package contains an additional runtime library for C++ programs built with the GNU compiler
+#   * openblas: open source implementation of the BLAS(Basic Linear Algebra Subprograms) API with many hand-crafted optimizations for specific processor types
+#   * tcl: scripting language
+#   * tk: GUI toolkit for the Tcl scripting language
+#   * libssl1.0: SSL shared libraries
+ENV PACKAGES="\
+    dumb-init \
+    musl \
+    libc6-compat \
+    linux-headers \
+    build-base \
+    bash \
     git \
-    gfortran \
-    g++ \
-    less \
-    fonts-liberation \
-    libgfortran3 \
-    locales \
-    make \
-    openssh-client \
-    python3 \
-    python3-pip \
-    python3-setuptools \
-    rsync \
-    sudo \
-    wget \
-    curl \
-    vim \
-    zlib1g-dev \
-    neofetch \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    freetype \
+    libgfortran \
+    libgcc \
+    libstdc++ \
+    openblas \
+    tcl \
+    tk \
+    libssl1.0 \
+"
 
- # Update pip to the latest version.
-RUN python3 -m pip install --upgrade pip
+# PYTHON DATA SCIENCE PACKAGES
+#   * numpy: support for large, multi-dimensional arrays and matrices
+#   * matplotlib: plotting library for Python and its numerical mathematics extension NumPy.
+#   * scipy: library used for scientific computing and technical computing
+#   * scikit-learn: machine learning library integrates with NumPy and SciPy
+#   * pandas: library providing high-performance, easy-to-use data structures and data analysis tools
+#   * nltk: suite of libraries and programs for symbolic and statistical natural language processing for English
+ENV PYTHON_PACKAGES="\
+    numpy \
+    matplotlib \
+    scipy \
+    scikit-learn \
+    pandas \
+    nltk \
+" 
 
-RUN echo "en_GB.UTF-8 UTF-8" > /etc/locale.gen && \
-    locale-gen
+RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
+    && apk add --virtual build-runtime \
+    build-base python-dev openblas-dev freetype-dev pkgconfig gfortran \
+    && ln -s /usr/include/locale.h /usr/include/xlocale.h \
+    && pip install --upgrade pip \
+    && pip install --no-cache-dir $PYTHON_PACKAGES \
+    && apk del build-runtime \
+    && apk add --no-cache --virtual build-dependencies $PACKAGES \
+    && rm -rf /var/cache/apk/*
 
-# Install Tini - A tiny but valid init for containers https://github.com/krallin/tini.
-RUN wget --quiet https://github.com/krallin/tini/releases/download/v0.10.0/tini && \
-    echo "1361527f39190a7338a0b434bd8c88ff7233ce7b9a4876f3315c22fce7eca1b0 *tini" | sha256sum -c - && \
-    mv tini /usr/local/bin/tini && \
-    chmod +x /usr/local/bin/tini
-
-# Configure environment
-ENV CONDA_DIR /opt/conda
-ENV PATH $CONDA_DIR/bin:$PATH
-ENV SHELL /bin/bash
-ENV NB_USER stephen
-ENV NB_UID 1000
-ENV LC_ALL en_GB.UTF-8
-ENV LANG en_GB.UTF-8
-ENV LANGUAGE en_GB.UTF-8
-# terminal colors with xterm
-ENV TERM xterm
-
-# Configure Miniconda
-ENV MINICONDA_VER 4.6.14
-ENV MINICONDA Miniconda3-$MINICONDA_VER-Linux-x86_64.sh
-ENV MINICONDA_URL https://repo.continuum.io/miniconda/$MINICONDA
-ENV MINICONDA_MD5_SUM 718259965f234088d785cad1fbd7de03
-
-# Set up user environment variables.
-ENV NB_USER=stephen \
-    NB_UID=1000 \
-    NB_GID=100 \
-    LC_ALL=en_GB.UTF-8 \
-    LANG=en_GB.UTF-8 \
-    LANGUAGE=en_GB.UTF-8
-
-# Create non-root user.
-RUN useradd -m -s $SHELL -N -u $NB_UID $NB_USER
-
-USER $NB_USER
-#pull down oh-my-zsh
-RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
-
-# pull down vundle vim plugin system
-RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-
-# setup Vim
-COPY .vimrc /home/stephen/.vimrc
-# Install vim plugins
-RUN [ "/bin/bash", "-c", "vim -T dumb -n -i NONE -es -S <(echo -e 'silent! PluginInstall')" ]
-
-# set up zsh
-COPY .zshrc /home/stephen/.zshrc
-
-USER root
-# Install conda as stephen
-RUN cd /tmp && \
-    mkdir -p $CONDA_DIR && \
-    curl -L $MINICONDA_URL  -o miniconda.sh && \
-    echo "$MINICONDA_MD5_SUM  miniconda.sh" | md5sum -c - && \
-    /bin/bash miniconda.sh -f -b -p $CONDA_DIR && \
-    rm miniconda.sh && \
-    $CONDA_DIR/bin/conda install --yes conda==$MINICONDA_VER
-
-# pull down latest conda version
-RUN conda update -n base -c defaults conda
-
-# install data science packages
-RUN conda install -c conda-forge pandas scikit-learn lightgbm xgboost keras statsmodels tqdm pymc3 numba networkx hyperopt pyarrow psutil flatbuffers setproctitle pyemd jupyterlab
-
-RUN pip install ray
-
-# Configure container startup as user
-USER $NB_USER
-WORKDIR /home/$NB_USER/
-
-CMD [ "zsh" ]
+CMD ["python"]
