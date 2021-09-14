@@ -41,6 +41,8 @@ ENV PACKAGES="\
     tcl \
     tk \
     libssl1.0 \
+    vim \
+    R \
 "
 
 # PYTHON DATA SCIENCE PACKAGES
@@ -59,9 +61,9 @@ ENV PYTHON_PACKAGES="\
     nltk \
 " 
 
-RUN apk add --no-cache --virtual build-dependencies python --update py-pip \
+RUN apk add --no-cache --virtual build-dependencies python3 --update py3-pip \
     && apk add --virtual build-runtime \
-    build-base python-dev openblas-dev freetype-dev pkgconfig gfortran \
+    build-base python3-dev openblas-dev freetype-dev pkgconfig gfortran \
     && ln -s /usr/include/locale.h /usr/include/xlocale.h \
     && pip install --upgrade pip \
     && pip install --no-cache-dir $PYTHON_PACKAGES \
